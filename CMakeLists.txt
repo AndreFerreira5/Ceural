@@ -1,0 +1,14 @@
+cmake_minimum_required(VERSION 3.24)
+project(digits-nn-c C)
+
+set(CMAKE_C_STANDARD 11)
+
+include_directories(${PROJECT_SOURCE_DIR}/src)
+
+add_executable(digits-recognizer
+        src/main.c
+        src/nn_core.c
+        src/activations.c
+        src/loss.c
+        src/data.c
+)

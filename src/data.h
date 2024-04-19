@@ -1,0 +1,4 @@
+#ifndef DIGITS_NN_C_DATA_H
+#define DIGITS_NN_C_DATA_H
+
+#endif //DIGITS_NN_C_DATA_H
