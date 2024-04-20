@@ -4,10 +4,11 @@
 int main(){
     srand(time(NULL));
 
-    size_t layers[] = {1};
+    size_t layers[] = {8, 8, 4};
+    int layers_activations[] = {RELU_ACTIVATION, RELU_ACTIVATION, SOFTMAX_ACTIVATION};
     size_t layers_num = sizeof(layers)/sizeof(layers[0]);
 
-    NeuralNetwork* nn = create_neural_network(4, 3, layers_num, layers, TANH_ACTIVATION);
+    NeuralNetwork* nn = create_neural_network(4, layers_num, layers, layers_activations);
 
     if(nn == NULL){
         fprintf(stderr, "Error creating neural network\n");
@@ -30,6 +31,12 @@ int main(){
         }
     }
 
+    double *feedforward_output = feedforward(nn, (double[]){0.23, 0.76, 0.93, 0.12});
+    fprintf(stdout, "[");
+    for(size_t i=0; i<8; ++i){
+        fprintf(stdout, "%f, ", feedforward_output[i]);
+    }
+    fprintf(stdout, "]");
     destroy_neural_network(nn);
 
     return 0;
