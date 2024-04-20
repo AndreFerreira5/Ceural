@@ -1,0 +1,20 @@
+name: Setup CMake
+
+on:
+  push:
+    branches:
+      - *
+  merge:
+    branches:
+      - *
+
+jobs:
+  setup_cmake:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up CMake
+        run: cmake -Bbuild
