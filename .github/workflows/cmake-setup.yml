@@ -3,10 +3,10 @@ name: Setup CMake
 on:
   push:
     branches:
-      - *
+      - '*'
   merge:
     branches:
-      - *
+      - '*'
 
 jobs:
   setup_cmake:
@@ -17,4 +17,6 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up CMake
-        run: cmake -Bbuild
+        run: |
+          cmake -Bbuild
+          cmake --build build
