@@ -52,7 +52,7 @@ void sigmoid_tanh_init_biases(size_t current_layer_size, double *biases){
 
 
 
-NeuralNetwork* create_neural_network(const size_t input_layer_size, const size_t output_layer_size, size_t dense_layers_num, const size_t *dense_layers_size, int activation_type){
+NeuralNetwork *create_neural_network(const size_t input_layer_size, const size_t output_layer_size, size_t dense_layers_num, const size_t *dense_layers_size, int activation_type){
     if(input_layer_size <= 0){
         fprintf(stderr, "Invalid number of neurons for input layer\n");
         return NULL;
@@ -143,4 +143,17 @@ NeuralNetwork* create_neural_network(const size_t input_layer_size, const size_t
                                                                                                         );
 
     return nn;
+}
+
+
+void destroy_neural_network(NeuralNetwork *nn){
+    for(size_t dense_layer=0; dense_layer<nn->dense_layers_num; ++dense_layer){
+        for(size_t dense_layer_neuron=0; dense_layer_neuron<nn->dense_layers[dense_layer].size; ++dense_layer_neuron){
+            free(nn->dense_layers[dense_layer].weights[dense_layer_neuron]);
+
+            free(nn->dense_layers[dense_layer].weights);
+            free(nn->dense_layers[dense_layer].biases);
+        }
+    }
+    nn = NULL;
 }

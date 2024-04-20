@@ -48,10 +48,13 @@ typedef struct{
 
 
 /* Creates and returns a neural network with the provided layer sizes and activation type */
-NeuralNetwork* create_neural_network(size_t input_layer_size,
+NeuralNetwork *create_neural_network(size_t input_layer_size,
                                      size_t output_layer_size,
                                      size_t dense_layers_num,
                                      const size_t dense_layers_size[],
                                      int activation_type);
+
+
+void destroy_neural_network(NeuralNetwork *nn);
 
 #endif //DIGITS_NN_C_NN_CORE_H

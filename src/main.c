@@ -4,7 +4,7 @@
 int main(){
     srand(time(NULL));
 
-    size_t layers[] = {8, 16, 8};
+    size_t layers[] = {1};
     size_t layers_num = sizeof(layers)/sizeof(layers[0]);
 
     NeuralNetwork* nn = create_neural_network(4, 3, layers_num, layers, TANH_ACTIVATION);
@@ -29,6 +29,8 @@ int main(){
             fprintf(stdout, "]\n");
         }
     }
+
+    destroy_neural_network(nn);
 
     return 0;
 }
