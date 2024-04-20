@@ -11,4 +11,7 @@ add_executable(digits-recognizer
         src/activations.c
         src/loss.c
         src/data.c
+        src/utils.h
 )
+
+target_link_libraries(digits-recognizer m)
