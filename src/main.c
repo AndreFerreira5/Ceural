@@ -4,7 +4,7 @@
 int main(){
     srand(time(NULL));
 
-    size_t layers[] = {8, 8, 4};
+    size_t layers[] = {256, 256, 8};
     int layers_activations[] = {RELU_ACTIVATION, RELU_ACTIVATION, SOFTMAX_ACTIVATION};
     size_t layers_num = sizeof(layers)/sizeof(layers[0]);
 
@@ -14,6 +14,7 @@ int main(){
         fprintf(stderr, "Error creating neural network\n");
         exit(1);
     }
+    /*
     for(size_t i=0; i<nn->dense_layers_num; ++i){
         fprintf(stdout, "Dense Layer n%zu has %zu neurons\n", i, nn->dense_layers[i].size);
         for(size_t j=0; j<nn->dense_layers[i].size; j++){
@@ -29,14 +30,17 @@ int main(){
             }
             fprintf(stdout, "]\n");
         }
-    }
+    }*/
 
     double *feedforward_output = feedforward(nn, (double[]){0.23, 0.76, 0.93, 0.12});
+    double one = 0;
     fprintf(stdout, "[");
     for(size_t i=0; i<8; ++i){
         fprintf(stdout, "%f, ", feedforward_output[i]);
+        one += feedforward_output[i];
     }
-    fprintf(stdout, "]");
+    fprintf(stdout, "] - %f\n", one);
+    free(feedforward_output);
     destroy_neural_network(nn);
 
     return 0;

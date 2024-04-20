@@ -14,7 +14,7 @@ fi
 mkdir -p build
 cd build
 
-# cmake with specified build type
+# cmake
 cmake -DOPTIMIZATIONS=$OPTIMIZATIONS ..
 
 # build the project

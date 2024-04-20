@@ -167,37 +167,75 @@ double *feedforward(NeuralNetwork *nn, const double *input){
     for(size_t current_layer=0; current_layer<nn->dense_layers_num; ++current_layer){
         outputs = malloc(sizeof(double) * nn->dense_layers[current_layer].size);
         int layer_activation_type = nn->dense_layers[current_layer].activation_type;
-        if(layer_activation_type == SOFTMAX_ACTIVATION){
-            free(outputs);
-            outputs = softmax(previous_layer_size, inputs);
-        } else {
-            for(size_t current_layer_neuron=0; current_layer_neuron<nn->dense_layers[current_layer].size; ++current_layer_neuron){
-                double weighted_sum_value = weighted_sum(previous_layer_size,
-                                                   nn->dense_layers[current_layer].size,
-                                                   inputs, nn->dense_layers[current_layer].weights[current_layer_neuron],
-                                                   nn->dense_layers[current_layer].biases[current_layer_neuron]
-                );
-                double biased_value = weighted_sum_value + nn->dense_layers[current_layer].biases[current_layer_neuron];
 
-                switch (layer_activation_type) {
-                    case LINEAR_ACTIVATION:
-                        outputs[current_layer_neuron] = linear(biased_value);
-                        break;
-                    case SIGMOID_ACTIVATION:
-                        outputs[current_layer_neuron] = sigmoid(biased_value);
-                        break;
-                    case TANH_ACTIVATION:
-                        outputs[current_layer_neuron] = tanh(biased_value);
-                        break;
-                    case RELU_ACTIVATION:
-                        outputs[current_layer_neuron] = relu(biased_value);
-                        break;
-                    default:
-                        fprintf(stderr, "Error feedforwarding: Unknown type of activation -> %d\n", layer_activation_type);
-                        return NULL;
+        double *biased_inputs;
+        switch (layer_activation_type) {
+            case LINEAR_ACTIVATION:
+                for(size_t current_layer_neuron=0; current_layer_neuron<nn->dense_layers[current_layer].size; ++current_layer_neuron){
+                    double weighted_sum_value = weighted_sum(previous_layer_size,
+                                                             nn->dense_layers[current_layer].size,
+                                                             inputs, nn->dense_layers[current_layer].weights[current_layer_neuron],
+                                                             nn->dense_layers[current_layer].biases[current_layer_neuron]
+                    );
+                    double biased_value = weighted_sum_value + nn->dense_layers[current_layer].biases[current_layer_neuron];
+                    outputs[current_layer_neuron] = linear(biased_value);
                 }
-            }
+                break;
+            case SIGMOID_ACTIVATION:
+                for(size_t current_layer_neuron=0; current_layer_neuron<nn->dense_layers[current_layer].size; ++current_layer_neuron){
+                    double weighted_sum_value = weighted_sum(previous_layer_size,
+                                                             nn->dense_layers[current_layer].size,
+                                                             inputs, nn->dense_layers[current_layer].weights[current_layer_neuron],
+                                                             nn->dense_layers[current_layer].biases[current_layer_neuron]
+                    );
+                    double biased_value = weighted_sum_value + nn->dense_layers[current_layer].biases[current_layer_neuron];
+                    outputs[current_layer_neuron] = sigmoid(biased_value);
+                }
+                break;
+            case TANH_ACTIVATION:
+                for(size_t current_layer_neuron=0; current_layer_neuron<nn->dense_layers[current_layer].size; ++current_layer_neuron){
+                    double weighted_sum_value = weighted_sum(previous_layer_size,
+                                                             nn->dense_layers[current_layer].size,
+                                                             inputs, nn->dense_layers[current_layer].weights[current_layer_neuron],
+                                                             nn->dense_layers[current_layer].biases[current_layer_neuron]
+                    );
+                    double biased_value = weighted_sum_value + nn->dense_layers[current_layer].biases[current_layer_neuron];
+                    outputs[current_layer_neuron] = tanh(biased_value);
+                }
+                break;
+            case RELU_ACTIVATION:
+                for(size_t current_layer_neuron=0; current_layer_neuron<nn->dense_layers[current_layer].size; ++current_layer_neuron){
+                    double weighted_sum_value = weighted_sum(previous_layer_size,
+                                                             nn->dense_layers[current_layer].size,
+                                                             inputs, nn->dense_layers[current_layer].weights[current_layer_neuron],
+                                                             nn->dense_layers[current_layer].biases[current_layer_neuron]
+                    );
+                    double biased_value = weighted_sum_value + nn->dense_layers[current_layer].biases[current_layer_neuron];
+                    outputs[current_layer_neuron] = relu(biased_value);
+                }
+                break;
+            case SOFTMAX_ACTIVATION:
+                biased_inputs = malloc(sizeof(double) * nn->dense_layers[current_layer].size);
+                for(size_t current_layer_neuron=0; current_layer_neuron<nn->dense_layers[current_layer].size; ++current_layer_neuron){
+                    double weighted_sum_value = weighted_sum(previous_layer_size,
+                                                             nn->dense_layers[current_layer].size,
+                                                             inputs, nn->dense_layers[current_layer].weights[current_layer_neuron],
+                                                             nn->dense_layers[current_layer].biases[current_layer_neuron]
+                    );
+                    double biased_value = weighted_sum_value + nn->dense_layers[current_layer].biases[current_layer_neuron];
+
+                    biased_inputs[current_layer_neuron] = biased_value;
+                }
+                free(outputs);
+                outputs = softmax(nn->dense_layers[current_layer].size, biased_inputs);
+                free(biased_inputs);
+
+                break;
+            default:
+                fprintf(stderr, "Error feedforwarding: Unknown type of activation -> %d\n", layer_activation_type);
+                return NULL;
         }
+
 
         free(inputs);
         inputs = outputs;
