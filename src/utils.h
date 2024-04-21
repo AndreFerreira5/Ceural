@@ -9,5 +9,6 @@
 #include <time.h>
 #include <sys/time.h>
 #include <math.h>
+#include<unistd.h>
 
 #endif //DIGITS_NN_C_UTILS_H

@@ -290,6 +290,8 @@ void backpropagation(NeuralNetwork *nn, const double *network_input, const doubl
 
 
     for(size_t layer=nn->dense_layers_num-2; ; --layer){
+        if(layer == 0) break;
+
         DenseLayer *current_layer = &nn->dense_layers[layer];
         DenseLayer *next_layer = &nn->dense_layers[layer + 1];
 
@@ -308,7 +310,6 @@ void backpropagation(NeuralNetwork *nn, const double *network_input, const doubl
             else
                 new_deltas[current_layer_neuron] = sum * current_layer->activation_derivative(current_layer->outputs[current_layer_neuron]);
         }
-        if(layer == 0) break;
 
         for(size_t next_layer_neuron=0; next_layer_neuron<next_layer->size; ++next_layer_neuron){
             for(size_t current_layer_neuron=0; current_layer_neuron<current_layer->size; ++current_layer_neuron){
