@@ -41,8 +41,12 @@ void destroy_neural_network(NeuralNetwork *nn);
  * If the neural network has X neurons, then the first X elements of the provided input will be fed to the network */
 double *feedforward(NeuralNetwork *nn, const double *input);
 
+/* Calculates the loss of the network, comparing the network output and the expected output using
+ * the loss function of the network */
 double calculate_loss(NeuralNetwork *nn, const double *network_output, const double *expected_output);
 
+/* Propagates backwards through the network, calculating gradients and updating weights and biases
+ * based on the network output and the expected output, using the activation functions attributed to the layers of the network*/
 void backpropagation(NeuralNetwork *nn, const double *network_input, const double *expected_output);
 
 #endif //DIGITS_NN_C_NN_CORE_H

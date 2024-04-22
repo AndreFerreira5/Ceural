@@ -197,9 +197,6 @@ double weighted_sum(size_t previous_layer_size, size_t current_layer_size, doubl
 
 // TODO fix potentially memory leak on 'outputs'
 double *feedforward(NeuralNetwork *nn, const double *input){
-    struct timeval start, end;
-    gettimeofday(&start, NULL);
-
 
     size_t previous_layer_size = nn->input_layer_size;
     double *inputs = malloc(sizeof(double) * nn->input_layer_size);
@@ -246,15 +243,9 @@ double *feedforward(NeuralNetwork *nn, const double *input){
         memcpy(inputs, outputs, sizeof(double) * nn->dense_layers[current_layer].size);
         memcpy(nn->dense_layers[current_layer].outputs, outputs, sizeof(double) * nn->dense_layers[current_layer].size);
         free(outputs);
+        outputs = NULL;
         previous_layer_size = nn->dense_layers[current_layer].size;
     }
-
-
-    gettimeofday(&end, NULL);
-    long seconds = end.tv_sec - start.tv_sec;
-    long useconds = end.tv_usec - start.tv_usec;
-    double elapsed = seconds + useconds * 1E-6;
-    fprintf(stdout, "Feedforward done in %fseconds\n", elapsed);
 
     return inputs;
 }

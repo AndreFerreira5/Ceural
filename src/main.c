@@ -2,61 +2,85 @@
 #include "activations.h"
 #include "loss.h"
 #include "utils.h"
+#include "data.h"
 
 int main(){
     srand(time(NULL));
 
-    size_t layers[] = {16, 16, 4};
+    mnist_handwritten_digits_data mnist_data = load_mnist_data("../data/mnist/handwritten-digits/train/train-images.idx3-ubyte",
+                                                               "../data/mnist/handwritten-digits/train/train-labels.idx1-ubyte",
+                                                               "../data/mnist/handwritten-digits/test/t10k-images.idx3-ubyte",
+                                                               "../data/mnist/handwritten-digits/test/t10k-labels.idx1-ubyte"
+                                                               );
+    if(mnist_data.training_images.magic_number == -1){
+        fprintf(stderr, "Error loading mnist data!\n");
+        exit(1);
+    }
+
+    size_t layers[] = {128, 128, 10};
     int layers_activations[] = {SIGMOID_ACTIVATION, SIGMOID_ACTIVATION, SOFTMAX_ACTIVATION};
     int loss_function = MULTI_CROSS_ENTROPY_LOSS;
     size_t layers_num = sizeof(layers)/sizeof(layers[0]);
+    double learning_rate = 0.001;
 
-    NeuralNetwork* nn = create_neural_network(4, layers_num, layers, layers_activations, loss_function, 0.00005);
+    NeuralNetwork* nn = create_neural_network(mnist_data.training_images.number_of_rows * mnist_data.training_images.number_of_columns,
+                                              layers_num,
+                                              layers,
+                                              layers_activations,
+                                              loss_function,
+                                              learning_rate);
 
     if(nn == NULL){
         fprintf(stderr, "Error creating neural network\n");
         exit(1);
     }
 
-    for(size_t i=0; i<nn->dense_layers_num; ++i){
-        fprintf(stdout, "Dense Layer n%zu has %zu neurons\n", i, nn->dense_layers[i].size);
-        for(size_t j=0; j<nn->dense_layers[i].size; j++){
-            fprintf(stdout, "Weights for neuron %zu: [", j);
-            for(size_t x=0; x<nn->dense_layers[i].previous_layer_size; x++){
-                fprintf(stdout, "%f, ", nn->dense_layers[i].weights[j][x]);
-            }
-            fprintf(stdout, "]\n");
 
-            fprintf(stdout, "Biases for neuron %zu: [", j);
-            for(size_t x=0; x<nn->dense_layers[i].size; x++){
-                fprintf(stdout, "%f, ", nn->dense_layers[i].biases[x]);
+    size_t batch_size = 100;
+    int epochs = 50;
+
+    for(int epoch = 0; epoch < epochs; epoch++) {
+        // Shuffle the training data at the beginning of each epoch
+        shuffle_training_data(mnist_data.training_images.images, mnist_data.training_labels.labels, mnist_data.training_images.number_of_images);
+
+        for(size_t i = 0; i < mnist_data.training_images.number_of_images; i += batch_size) {
+            double batch_loss = 0.0;
+            for(size_t j = i; j < i + batch_size && j < mnist_data.training_images.number_of_images; j++) {
+                double *network_output = feedforward(nn, mnist_data.training_images.images[j]);
+                /*fprintf(stdout, "[");
+                for(size_t x=0; x<10; ++x){
+                    fprintf(stdout, "%f, ", network_output[x]);
+                }
+                fprintf(stdout, "]\n");*/
+
+                batch_loss += calculate_loss(nn, network_output, mnist_data.training_labels.labels[j]);
+                backpropagation(nn, mnist_data.training_images.images[j], mnist_data.training_labels.labels[j]);
+                free(network_output);
             }
-            fprintf(stdout, "]\n");
+            batch_loss /= (double)batch_size;
+            fprintf(stdout, "\rEpoch %d, Batch Loss: %f", epoch + 1, batch_loss);
         }
-    }
-    double input[] = {0.23, 0.76, 0.93, 0.12};
-    double expected_output[] = {0, 1, 0, 0};
 
-    for(int i=0; i<10000; ++i){
-        fprintf(stdout, "Epoch %d\n", i+1);
+        int random = rand()/mnist_data.training_images.number_of_images;
+        double *network_output = feedforward(nn, mnist_data.training_images.images[random]);
 
-        double *network_output = feedforward(nn, input);
+        fprintf(stdout, "\nNet Output: ");
         fprintf(stdout, "[");
-        for(size_t j=0; j<4; ++j){
-            fprintf(stdout, "%f, ", network_output[j]);
+        for(size_t x=0; x<10; ++x){
+            fprintf(stdout, "%f, ", network_output[x]);
         }
         fprintf(stdout, "]\n");
-
-        double loss = calculate_loss(nn, network_output, expected_output);
-        fprintf(stdout, "Loss: %f\n", loss);
-
-        backpropagation(nn, input, expected_output);
-
-
-        free(network_output);
+        fprintf(stdout, "Expected Output: ");
+        fprintf(stdout, "[");
+        for(size_t x=0; x<10; ++x){
+            fprintf(stdout, "%f, ", mnist_data.training_labels.labels[random][x]);
+        }
+        fprintf(stdout, "]\n");
+        //fprintf(stdout, "\n");
     }
 
     destroy_neural_network(nn);
+    destroy_mnist_data(mnist_data);
 
     return 0;
 }

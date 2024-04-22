@@ -62,6 +62,11 @@ double *softmax(const size_t inputs_num, const double *inputs){
         exp_sum += outputs[i];
     }
 
+    if(exp_sum == 0.0){
+        free(outputs);
+        return NULL;
+    }
+
     for(size_t i=0; i<inputs_num; ++i){
         outputs[i] /= exp_sum;
     }
