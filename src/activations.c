@@ -79,7 +79,7 @@ double *softmax_derivative(const size_t inputs_num, const double *inputs, const 
     double *softmax_activated_outputs = softmax(inputs_num, inputs);
     double *softmax_derivatives = malloc(sizeof(double) * inputs_num);
     for (size_t i = 0; i < inputs_num; i++) {
-        softmax_derivatives[i] = softmax_activated_outputs[i] - (expected_outputs[i] == 1 ? 1.0 : 0.0);
+        softmax_derivatives[i] = softmax_activated_outputs[i] * (expected_outputs[i] ? (1.0 - softmax_activated_outputs[i]) : (-softmax_activated_outputs[i]));
     }
     free(softmax_activated_outputs);
     return softmax_derivatives;

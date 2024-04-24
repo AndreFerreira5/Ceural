@@ -97,18 +97,12 @@ mnist_labels_set load_mnist_handwritten_labels(const char* labels_filepath){
 
     int32_t magic_number;
     if(read_from_file(&magic_number, sizeof(int32_t), labels_set_file)) return (mnist_labels_set){-1};
-    magic_number = (magic_number >> 24) |
-                   ((magic_number << 8) & 0x00FF0000) |
-                   ((magic_number >> 8) & 0x0000FF00) |
-                   (magic_number << 24);
+    magic_number = ntohl(magic_number);
     labels_set.magic_number = magic_number;
 
     int32_t number_of_items;
     if(read_from_file(&number_of_items, sizeof(int32_t), labels_set_file)) return (mnist_labels_set){-1};
-    number_of_items = (number_of_items >> 24) |
-                       ((number_of_items << 8) & 0x00FF0000) |
-                       ((number_of_items >> 8) & 0x0000FF00) |
-                       (number_of_items << 24);
+    number_of_items = ntohl(number_of_items);
     labels_set.number_of_items = number_of_items;
 
 

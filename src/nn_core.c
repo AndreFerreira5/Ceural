@@ -195,7 +195,6 @@ double weighted_sum(size_t previous_layer_size, size_t current_layer_size, doubl
 }
 
 
-// TODO fix potentially memory leak on 'outputs'
 double *feedforward(NeuralNetwork *nn, const double *input){
 
     size_t previous_layer_size = nn->input_layer_size;
@@ -235,10 +234,9 @@ double *feedforward(NeuralNetwork *nn, const double *input){
 
         free(inputs);
         inputs = malloc(sizeof(double) * nn->dense_layers[current_layer].size);
-        // TODO fix this memory leak
-        //if(nn->dense_layers[current_layer].outputs != NULL){
-        //    free(nn->dense_layers[current_layer].outputs);
-        //}
+        if(nn->dense_layers[current_layer].outputs != NULL){
+            free(nn->dense_layers[current_layer].outputs);
+        }
         nn->dense_layers[current_layer].outputs = malloc(sizeof(double) * nn->dense_layers[current_layer].size);
         memcpy(inputs, outputs, sizeof(double) * nn->dense_layers[current_layer].size);
         memcpy(nn->dense_layers[current_layer].outputs, outputs, sizeof(double) * nn->dense_layers[current_layer].size);
@@ -286,25 +284,21 @@ void backpropagation(NeuralNetwork *nn, const double *network_input, const doubl
         DenseLayer *current_layer = &nn->dense_layers[layer];
         DenseLayer *next_layer = &nn->dense_layers[layer + 1];
 
-        if(current_layer->activation == NULL){
-            softmax_derivatives = softmax_derivative(nn->dense_layers[last_layer_index].size, nn->dense_layers[last_layer_index].outputs, expected_output);
-        }
-
         double *new_deltas = malloc(sizeof(double) * current_layer->size);
         for(size_t current_layer_neuron=0; current_layer_neuron<current_layer->size; ++current_layer_neuron){
             double sum = 0;
             for(size_t next_layer_neuron=0; next_layer_neuron<next_layer->size; ++next_layer_neuron){
                 sum += deltas[next_layer_neuron] * next_layer->weights[next_layer_neuron][current_layer_neuron];
             }
-            if(current_layer->activation == NULL)
-                new_deltas[current_layer_neuron] = sum * new_deltas[current_layer_neuron];
-            else
+            //if(current_layer->activation == NULL){}
+                //new_deltas[current_layer_neuron] = sum * new_deltas[current_layer_neuron];
+            //else
                 new_deltas[current_layer_neuron] = sum * current_layer->activation_derivative(current_layer->outputs[current_layer_neuron]);
         }
 
         for(size_t next_layer_neuron=0; next_layer_neuron<next_layer->size; ++next_layer_neuron){
             for(size_t current_layer_neuron=0; current_layer_neuron<current_layer->size; ++current_layer_neuron){
-                next_layer->weights[next_layer_neuron][current_layer_neuron] -= nn->learning_rate * new_deltas[current_layer_neuron] * current_layer->outputs[current_layer_neuron];
+                next_layer->weights[next_layer_neuron][current_layer_neuron] -= nn->learning_rate * deltas[next_layer_neuron] * current_layer->outputs[current_layer_neuron];
             }
             next_layer->biases[next_layer_neuron] -= nn->learning_rate * deltas[next_layer_neuron];
         }
