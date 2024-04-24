@@ -5,15 +5,15 @@
 
 double random_normal(double mean, double stddev) {
     double u1, u2, z0;
-    u1 = rand() / (RAND_MAX + 1.0);
-    u2 = rand() / (RAND_MAX + 1.0);
+    u1 = drand48() / (RAND_MAX + 1.0);
+    u2 = drand48() / (RAND_MAX + 1.0);
     z0 = sqrt(-2.0 * log(u1)) * cos(2 * M_PI * u2);
     return z0 * stddev + mean;
 }
 
 
 double random_uniform(double min, double max) {
-    return min + (double)rand() / ((double)RAND_MAX / (max - min));
+    return min + (double)drand48() / ((double)RAND_MAX / (max - min));
 }
 
 
@@ -97,6 +97,7 @@ NeuralNetwork *create_neural_network(const size_t input_layer_size, size_t dense
 
             DenseLayer dense_layer;
             dense_layer.size = dense_layer_size;
+            dense_layer.outputs = malloc(1);
             // malloc weights
             dense_layer.weights = malloc(sizeof(double*) * dense_layer_size);
             for(size_t current_layer_neuron=0; current_layer_neuron<dense_layer_size; ++current_layer_neuron){
@@ -234,9 +235,6 @@ double *feedforward(NeuralNetwork *nn, const double *input){
 
         free(inputs);
         inputs = malloc(sizeof(double) * nn->dense_layers[current_layer].size);
-        if(nn->dense_layers[current_layer].outputs != NULL){
-            free(nn->dense_layers[current_layer].outputs);
-        }
         nn->dense_layers[current_layer].outputs = malloc(sizeof(double) * nn->dense_layers[current_layer].size);
         memcpy(inputs, outputs, sizeof(double) * nn->dense_layers[current_layer].size);
         memcpy(nn->dense_layers[current_layer].outputs, outputs, sizeof(double) * nn->dense_layers[current_layer].size);

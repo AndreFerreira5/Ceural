@@ -5,7 +5,7 @@
 #include "data.h"
 
 int main(){
-    srand(time(NULL));
+    srand48(time(NULL));
 
     mnist_handwritten_digits_data mnist_data = load_mnist_data("../data/mnist/handwritten-digits/train/train-images.idx3-ubyte",
                                                                "../data/mnist/handwritten-digits/train/train-labels.idx1-ubyte",
@@ -17,9 +17,8 @@ int main(){
         exit(1);
     }
 
-    //int random = rand()/mnist_data.training_images.number_of_images;
 
-    for(int photo=0; photo<10; ++photo){
+    for(int photo=0; photo<1; ++photo){
         for(int i=0; i<mnist_data.training_images.number_of_rows; ++i){
             for(int j=0; j<mnist_data.training_images.number_of_columns; ++j){
                 fprintf(stdout, "%.0f\t", mnist_data.training_images.images[photo][i*mnist_data.training_images.number_of_rows+j]*255);
@@ -34,11 +33,11 @@ int main(){
     }
 
 
-    size_t layers[] = {64, 64, 10};
+    size_t layers[] = {16, 16, 10};
     int layers_activations[] = {RELU_ACTIVATION, RELU_ACTIVATION, SOFTMAX_ACTIVATION};
     int loss_function = MULTI_CROSS_ENTROPY_LOSS;
     size_t layers_num = sizeof(layers)/sizeof(layers[0]);
-    double learning_rate = 0.000001;
+    double learning_rate = 0.000000001;
 
     NeuralNetwork* nn = create_neural_network(mnist_data.training_images.number_of_rows * mnist_data.training_images.number_of_columns,
                                               layers_num,
@@ -78,7 +77,7 @@ int main(){
             batch_loss /= (double)batch_size;
         }
         fprintf(stdout, "Epoch %d, Batch Loss: %f\n", epoch + 1, batch_loss);
-        int random = rand()/mnist_data.training_images.number_of_images;
+        int random = (int)drand48()/mnist_data.training_images.number_of_images;
         double *network_output = feedforward(nn, mnist_data.training_images.images[random]);
 
         fprintf(stdout, "Net Output: ");
